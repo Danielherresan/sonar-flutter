@@ -31,7 +31,7 @@ public class HelperChecks {
           String subLine = line.substring(index - 2, index);
           String endLine = line.substring(index).replaceAll("\\s+", "");
           currentPosition += index+1;
-          if (!subLine.equals("Bc") && endLine.substring(0, word.length() + 1).equals(word + "(")){
+          if (!subLine.matches(".*[a-z].*")&& endLine.substring(0, word.length() + 1).equals(word + "(")){
               issuesPositions.add(currentPosition);
           }
           line = line.substring(index+1);

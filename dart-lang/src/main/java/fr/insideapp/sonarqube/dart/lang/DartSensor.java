@@ -94,13 +94,9 @@ public class DartSensor implements Sensor {
                 } catch (IOException e) {
                     LOGGER.warn("Unexpected error while analyzing file " + inf.filename(), e);
                 }
-
             });
-
         }
-
         for(InputFile inf : sensorContext.fileSystem().inputFiles(dartAndTest)){
-
             executorService.execute(() -> {
                 // Visit test files (for syntax highlighting only)
                 try {
@@ -111,7 +107,6 @@ public class DartSensor implements Sensor {
                     LOGGER.warn("Unexpected error while analyzing file " + inf.filename(), e);
                 }
             });
-
         }
 
         try {
@@ -121,8 +116,6 @@ public class DartSensor implements Sensor {
         } catch (final InterruptedException e) {
             LOGGER.warn("Unexpected error while running waiting for executor service to finish", e);
         }
-
-
     }
     private void scanFiles(SensorContext context, InputFile file) {
 
