@@ -250,6 +250,16 @@
             </plugin>
 
         </plugins>
+
     </build>
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>danielherresan</name>
+            <url>https://github.com/Danielherresan/sonar-flutter</url>
+        </repository>
+    </distributionManagement>
+
+
 
 </project>
