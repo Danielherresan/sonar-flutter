@@ -24,6 +24,7 @@ import fr.insideapp.sonarqube.dart.lang.issues.DartProfile;
 import fr.insideapp.sonarqube.dart.lang.issues.dartanalyzer.DartAnalyzerRulesDefinition;
 import fr.insideapp.sonarqube.dart.lang.issues.dartanalyzer.DartAnalyzerSensor;
 import fr.insideapp.sonarqube.flutter.coverage.FlutterCoverageSensor;
+import fr.insideapp.sonarqube.flutter.rules.DartRulesDefinition;
 import fr.insideapp.sonarqube.flutter.tests.FlutterTestSensor;
 import org.sonar.api.Plugin;
 import fr.insideapp.sonarqube.dart.lang.Dart;
@@ -58,6 +59,8 @@ public class FlutterPlugin implements Plugin {
                         .subCategory(TESTS_SUBCATEGORY)
                         .build());
 
+
+
         context.addExtension(
                 PropertyDefinition.builder(FLUTTER_LCOV_REPORT_PATH_KEY)
                         .name("Coverage Report")
@@ -76,9 +79,11 @@ public class FlutterPlugin implements Plugin {
                         .subCategory(ANALYSIS_SUBCATEGORY)
                         .defaultValue("false")
                         .build());
+        context.addExtension(DartMetrics.class);
 
         // Tests
         context.addExtension(FlutterTestSensor.class);
+        context.addExtension(DartRulesDefinition.class);
 
         // Coverage
         context.addExtension(FlutterCoverageSensor.class);
