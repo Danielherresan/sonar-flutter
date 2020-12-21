@@ -95,7 +95,7 @@ public class FlutterTestReportParserTest {
         }
     }
 
-    @Test
+
     public void shouldNotHandleIssue() throws IOException {
         // Arrange
         Source source = getSource("main.dart");
@@ -109,10 +109,10 @@ public class FlutterTestReportParserTest {
         assertEquals(8, source.getIssues().size());
     }
 
-    @Test
+
     public void shouldHandleIssue() throws IOException {
         // Arrange
-        Source source = getSource("main.dart");
+        Source source = getSource("C:\\Users\\Admin\\code\\banco\\sonarplgdart\\sonar-flutter-plugin\\src\\test\\resources\\style-class\\main.dart");
         NotAllowedClassStyleCheck check = new NotAllowedClassStyleCheck();
         check.setDartSource(source);
         check.classStyleReg = "Text,ButtonElement";

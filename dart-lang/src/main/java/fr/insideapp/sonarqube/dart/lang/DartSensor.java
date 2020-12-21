@@ -21,14 +21,22 @@ package fr.insideapp.sonarqube.dart.lang;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import fr.insideapp.sonarqube.dart.lang.checks.AbstractDartCheck;
+import fr.insideapp.sonarqube.dart.lang.checks.CheckRepository;
+import fr.insideapp.sonarqube.dart.lang.models.Issue;
+import fr.insideapp.sonarqube.dart.lang.models.Source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -39,13 +47,21 @@ import fr.insideapp.sonarqube.dart.lang.antlr.CyclomaticComplexityVisitor;
 import fr.insideapp.sonarqube.dart.lang.antlr.HighlighterVisitor;
 import fr.insideapp.sonarqube.dart.lang.antlr.ParseTreeItemVisitor;
 import fr.insideapp.sonarqube.dart.lang.antlr.SourceLinesVisitor;
+import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
 public class DartSensor implements Sensor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DartSensor.class);
     private static final int EXECUTOR_TIMEOUT = 10000;
 	public static final String DART_ANALYSIS_USE_EXISTING_OPTIONS_KEY = "sonar.dart.analysis.useExistingOptions";
+    private final Checks<Object> checks;
 
+    public DartSensor(CheckFactory checkFactory) {
+        this.checks = checkFactory
+                .create(CheckRepository.REPOSITORY_KEY)
+                .addAnnotatedChecks((Iterable<?>) CheckRepository.getCheckClasses());
+    }
     @Override
     public void describe(SensorDescriptor sensorDescriptor) {
         sensorDescriptor
@@ -67,7 +83,7 @@ public class DartSensor implements Sensor {
         final ExecutorService executorService = Executors.newWorkStealingPool();
 
         for(InputFile inf : sensorContext.fileSystem().inputFiles(dartAndMain)){
-
+            scanFiles(sensorContext, inf);
             executorService.execute(() -> {
                 // Visit source files
                 try {
@@ -78,6 +94,7 @@ public class DartSensor implements Sensor {
                 } catch (IOException e) {
                     LOGGER.warn("Unexpected error while analyzing file " + inf.filename(), e);
                 }
+
             });
 
         }
@@ -105,5 +122,52 @@ public class DartSensor implements Sensor {
             LOGGER.warn("Unexpected error while running waiting for executor service to finish", e);
         }
 
+
     }
+    private void scanFiles(SensorContext context, InputFile file) {
+
+            LOGGER.debug("file language: " + file.language() + " file name: " + file.filename());
+            checkInputFile(context, file);
+
+    }
+
+    private void checkInputFile(SensorContext context, InputFile file) {
+        try {
+            Source source = new Source(file);
+            runChecks(context, source);
+        } catch (IOException e) {
+            LOGGER.warn("Error reading source file " + file.filename(), e);
+        }
+    }
+
+    private void runChecks(SensorContext context, Source sourceCode) {
+        for (Object check : checks.all()) {
+            try {
+                ((AbstractDartCheck) check).setRuleKey(checks.ruleKey(check));
+                ((AbstractDartCheck) check).setDartSource(sourceCode);
+                LOGGER.debug("Checking rule: " + ((AbstractDartCheck) check).getRuleKey());
+                ((AbstractDartCheck) check).validate();
+            } catch (Exception e) {
+                LOGGER.warn("Error checking dart rule", e);
+            }
+        }
+        saveIssues(context, sourceCode);
+    }
+
+    private void saveIssues(SensorContext context, Source sourceCode) {
+        for (Issue issue : sourceCode.getIssues()) {
+            try {
+                LOGGER.debug("Saving issue: " + issue.getMessage());
+                NewIssue newIssue = context.newIssue().forRule(issue.getRuleKey());
+                NewIssueLocation location = newIssue.newLocation()
+                        .on(sourceCode.getInputFile())
+                        .message(issue.getMessage())
+                        .at(sourceCode.getInputFile().selectLine(issue.getLine()));
+                newIssue.at(location).save();
+            } catch (Exception e) {
+                LOGGER.warn("Error saving issue", e);
+            }
+        }
+    }
+
 }

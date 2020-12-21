@@ -20,6 +20,9 @@
 package fr.insideapp.sonarqube.dart.lang;
 
 import org.junit.Test;
+import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +31,7 @@ public class DartSensorTest {
 
     @Test
     public void describe() {
-        DartSensor sensor = new DartSensor();
+        DartSensor sensor = new DartSensor(new CheckFactory(new ActiveRulesBuilder().build()));
         DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
         sensor.describe(descriptor);
         assertThat(descriptor.name()).isEqualTo("Dart sensor");
