@@ -34,6 +34,7 @@ public class NotAllowedClassStyleCheck extends AbstractDartCheck {
     HelperChecks helperChecks = new HelperChecks();
     private int index = 0;
     @RuleProperty(key = "not-allowed-class", description = "Regexp that matches the class style")
+    public
     String classStyleReg;
     @Override
     public void validate() {

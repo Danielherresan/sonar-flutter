@@ -19,11 +19,21 @@
  */
 package fr.insideapp.sonarqube.flutter.tests;
 
+import fr.insideapp.sonarqube.dart.lang.checks.NotAllowedClassStyleCheck;
+import fr.insideapp.sonarqube.dart.lang.models.Source;
+import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class FlutterTestReportParserTest {
 
@@ -69,6 +79,54 @@ public class FlutterTestReportParserTest {
         assertThat(results.get(0).getActualTests().get(0).getResult()).isEqualTo("success");
         assertThat(results.get(0).getActualTests().get(0).isSkipped()).isEqualTo(false);
         assertThat(results.get(0).getActualTests().get(0).isHidden()).isEqualTo(false);
+
+    }
+    @Rule
+    public LogTester logTester = new LogTester();
+
+    @Test
+    public void testFailedValidateNoSource() {
+        NotAllowedClassStyleCheck check = new NotAllowedClassStyleCheck();
+        try {
+            check.validate();
+            fail("No source code should raise an exception");
+        } catch (IllegalStateException e) {
+            assertEquals("Source code not set, cannot validate anything", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldNotHandleIssue() throws IOException {
+        // Arrange
+        Source source = getSource("main.dart");
+        System.out.println("Naniiiiiiiiiiiiiiiiiiiiiiiiiiii");
+        NotAllowedClassStyleCheck check = new NotAllowedClassStyleCheck();
+        check.setDartSource(source);
+        check.classStyleReg = "Text,ButtonElement";
+        // Act
+        check.validate();
+        // Assert
+        assertEquals(8, source.getIssues().size());
+    }
+
+    @Test
+    public void shouldHandleIssue() throws IOException {
+        // Arrange
+        Source source = getSource("main.dart");
+        NotAllowedClassStyleCheck check = new NotAllowedClassStyleCheck();
+        check.setDartSource(source);
+        check.classStyleReg = "Text,ButtonElement";
+        String message = "The usage of Text,ButtonElement class is not allowed";
+        // Act
+        check.validate();
+        // Assert
+        assertEquals(8, logTester.logs(LoggerLevel.INFO).size());
+        Assert.assertThat(logTester.logs(LoggerLevel.INFO).get(0), containsString(message));
+        assertEquals(8, source.getIssues().size());
+    }
+
+    private Source getSource(String filename) throws IOException {
+        return new Source(Utils.getInputFile("style-class/" + filename));
     }
 
 }
