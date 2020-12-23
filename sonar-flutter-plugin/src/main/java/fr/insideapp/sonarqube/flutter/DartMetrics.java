@@ -27,8 +27,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class DartMetrics implements Metrics {
-    private static final Metric<Double> NOT_ALLOWED_CLASS_STYLE = new Metric.Builder(
-            "not_allowed_class_style",
+    private static final Metric<Double> NOT_ALLOWED_WIDGET_STYLE = new Metric.Builder(
+            "not_allowed_widget_style",
             "Number of classes not allowed in dart files",
             Metric.ValueType.FLOAT)
             .setDescription("Shows the number of classes that should not be used defined by design system")
@@ -40,6 +40,6 @@ public class DartMetrics implements Metrics {
     @SuppressWarnings("rawtypes")
     @Override
     public List<Metric> getMetrics() {
-        return Arrays.asList(NOT_ALLOWED_CLASS_STYLE);
+        return Arrays.asList(NOT_ALLOWED_WIDGET_STYLE);
     }
 }

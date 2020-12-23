@@ -26,11 +26,11 @@ public class CheckRepository {
     public static final String REPOSITORY_KEY = "design-system-flutter";
     public static final String REPOSITORY_NAME = "Design System Flutter Analyzer";
     private static final List<Class<? extends AbstractDartCheck>> CHECK_CLASSES = Arrays.asList(
-            NotAllowedClassStyleCheck.class
+            NotAllowedWidgetCheck.class
             );
 
     private static final List<String> TEMPLATE_RULE_KEYS = Arrays.asList(
-            NotAllowedClassStyleCheck.class.getSimpleName()
+            NotAllowedWidgetCheck.class.getSimpleName()
     );
 
     private CheckRepository() {

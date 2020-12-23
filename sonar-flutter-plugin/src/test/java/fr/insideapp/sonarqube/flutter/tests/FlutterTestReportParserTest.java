@@ -19,7 +19,8 @@
  */
 package fr.insideapp.sonarqube.flutter.tests;
 
-import fr.insideapp.sonarqube.dart.lang.checks.NotAllowedClassStyleCheck;
+
+import fr.insideapp.sonarqube.dart.lang.checks.NotAllowedWidgetCheck;
 import fr.insideapp.sonarqube.dart.lang.models.Source;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -86,7 +87,7 @@ public class FlutterTestReportParserTest {
 
     @Test
     public void testFailedValidateNoSource() {
-        NotAllowedClassStyleCheck check = new NotAllowedClassStyleCheck();
+        NotAllowedWidgetCheck check = new NotAllowedWidgetCheck();
         try {
             check.validate();
             fail("No source code should raise an exception");
@@ -100,7 +101,7 @@ public class FlutterTestReportParserTest {
         // Arrange
         Source source = getSource("main.dart");
         System.out.println("Naniiiiiiiiiiiiiiiiiiiiiiiiiiii");
-        NotAllowedClassStyleCheck check = new NotAllowedClassStyleCheck();
+        NotAllowedWidgetCheck check = new NotAllowedWidgetCheck();
         check.setDartSource(source);
         check.classStyleReg = "Text,ButtonElement";
         // Act
@@ -113,7 +114,7 @@ public class FlutterTestReportParserTest {
     public void shouldHandleIssue() throws IOException {
         // Arrange
         Source source = getSource("C:\\Users\\Admin\\code\\banco\\sonarplgdart\\sonar-flutter-plugin\\src\\test\\resources\\style-class\\main.dart");
-        NotAllowedClassStyleCheck check = new NotAllowedClassStyleCheck();
+        NotAllowedWidgetCheck check = new NotAllowedWidgetCheck();
         check.setDartSource(source);
         check.classStyleReg = "Text,ButtonElement";
         String message = "The usage of Text,ButtonElement class is not allowed";

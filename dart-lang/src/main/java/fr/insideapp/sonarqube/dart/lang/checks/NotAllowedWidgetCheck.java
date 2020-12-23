@@ -26,9 +26,9 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import java.util.List;
 import java.util.stream.Stream;
-@Rule(key = "NotAllowedClassStyleCheck")
-public class NotAllowedClassStyleCheck extends AbstractDartCheck {
-    private static final Logger LOGGER = Loggers.get(NotAllowedClassStyleCheck.class);
+@Rule(key = "NotAllowedWidgetCheck")
+public class NotAllowedWidgetCheck extends AbstractDartCheck {
+    private static final Logger LOGGER = Loggers.get(NotAllowedWidgetCheck.class);
     private static final String ERROR_MESSAGE = "The usage of %s class is not allowed";
     private static final String GALATEA_DIVISOR = "galateadivisor2730";
     HelperChecks helperChecks = new HelperChecks();
